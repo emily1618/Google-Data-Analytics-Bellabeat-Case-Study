@@ -61,6 +61,12 @@ weight %>%
   summarise("Manual Weight Report"=n()) %>%
   distinct()
  ```
+Additional insight to be awared of is how often user record their data. We can see from the ```ggplot()``` bar graph that the data are greatest from Tuesday to Thursday. We need to investigate the data recording distribution. Monday and Friday are both weekdays, why isn't the data recordings as much as the other weekdays? 
+```
+ggplot(data=merged_data, aes(x=Weekday))+
+  geom_bar(fill="steelblue")
+```
+![image](https://user-images.githubusercontent.com/62857660/136111719-f210057f-9ebc-45e9-a16f-e8349e30becc.png)
 
 Merge the three tables:
 ```
@@ -99,6 +105,8 @@ merged_data %>%
   summary()
 ```
 
+
+
 Percentage of active minutes in the four categories: very active, fairly active, lightly active and sedentary. From the pie chart, we can see that most users spent 81.3% of their daily activity in sedentary minutes and only 1.74% in very active minutes. 
 ```
 percentage <- data.frame(
@@ -116,11 +124,18 @@ plot_ly(percentage, labels = ~level, values = ~minutes, type = 'pie',textpositio
 
 Let's look at the data further and plot data using ```ggplot()```. The more active that you're, the more steps you take, and the more calories you will burn. This is an obvious fact, but we can still look into the data to find any interesting facts. Here we see that some users who are sedentary, take minimal steps, but still able to burn over 1500 to 2500 calories compare to users who are more active, take more steps, but still burn similar calories.
 
-![image](https://user-images.githubusercontent.com/62857660/136102960-b155ccd5-cd82-46c2-a81c-7cbefe79a544.png)
+```
+ggplot(data=daily_activity, aes(x=TotalSteps, y = Calories, color=SedentaryMinutes))+ 
+  geom_point()+ 
+  stat_smooth(method=lm)+
+  scale_color_gradient(low="steelblue", high="orange")
+
+```
+
+![image](https://user-images.githubusercontent.com/62857660/136112636-89a7dfd3-79e5-410d-95b5-4b95cc0a4210.png)
 
 
-Let's look at the BMI. Users who take more steps, burn more calories, and has lower BMI. We also see some outliers in the top left corner. Due to the small sample size with missing sleep data, the outliers may be a data error or leverage points we need to investigate.  
-![image](https://user-images.githubusercontent.com/62857660/136102974-6df1f5f0-dc32-4ff7-93b8-de23935dbe9c.png)
+
 
 Now for the sleep date, according to article: [Fitbit Sleep Study](https://blog.fitbit.com/sleep-study/#:~:text=The%20average%20Fitbit%20user%20is,is%20spent%20restless%20or%20awake.&text=People%20who%20sleep%205%20hours,the%20beginning%20of%20the%20night.), 55 minutes are spent awake in bed before going to sleep. We have 13 users in our dataset spend 55 minutes awake before alseep. 
 
@@ -131,10 +146,6 @@ awake_in_bed <- awake_in_bed %>%
   group_by(Id) %>% 
   arrange(AwakeTime) 
 ```
-
-Using ```ggplot()``` again to plot the data, we see majority of the users sleep between 5 to 10 hours spent 7 to 24 hours in sedentary and only 0 to 2 hours in very active mode. The variables here do not correlate well. The plots just tell us userse on average sleep between 5 to 10 hours and their active minutes reflect the pie chart above: most minutes are spent in sedentary and little time spent on being very active.   
-![image](https://user-images.githubusercontent.com/62857660/136106307-e381e182-dde8-4269-870b-6393b0e7a1c8.png)
-![image](https://user-images.githubusercontent.com/62857660/136106327-0be2382f-81c2-4e80-8dd4-796f62468b1d.png)
 
 Something we should also consider here: does the fitness data include sleep minutes as sedentary minutes? Let's take a look at the hourly plot. 
 
