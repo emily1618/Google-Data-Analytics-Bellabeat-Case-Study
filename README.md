@@ -1,4 +1,4 @@
-# CASE STUDY: Bellabeat Fitness Data Analysis
+# CASE STUDY: Bellabeat Fitness Data Analysis - EDITING...
 
 ##### Author: Emily Liang
 
