@@ -91,7 +91,7 @@ Clean the data to prepare for analysis in 4. Analyze!
 
 ## 4. Analyze
 
-Check min, max, mean, median and any outliers. 
+**SUMMARY:** Check min, max, mean, median and any outliers. 
 ```
 merged_data %>%
   dplyr::select(Weekday,
@@ -109,8 +109,9 @@ merged_data %>%
          ) %>%
   summary()
 ```
+![summary](https://user-images.githubusercontent.com/62857660/136262678-18377ce4-3443-48a4-b108-eba6a273f963.PNG)
 
-Percentage of active minutes in the four categories: very active, fairly active, lightly active and sedentary. From the pie chart, we can see that most users spent 81.3% of their daily activity in sedentary minutes and only 1.74% in very active minutes. 
+**ACTIVE MINUTES:** Percentage of active minutes in the four categories: very active, fairly active, lightly active and sedentary. From the pie chart, we can see that most users spent 81.3% of their daily activity in sedentary minutes and only 1.74% in very active minutes. 
 ```
 percentage <- data.frame(
   level=c("Sedentary", "Lightly", "Fairly", "Very Active"),
@@ -123,7 +124,7 @@ plot_ly(percentage, labels = ~level, values = ~minutes, type = 'pie',textpositio
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 ```
 
-![newplot](https://user-images.githubusercontent.com/62857660/136103632-9ad99673-0760-4e07-9e5a-c8cf5dc5898b.png)
+![newplot](https://user-images.githubusercontent.com/62857660/136252582-96e1f52a-dfe0-4247-a882-82d179d9b2b9.png)
 
 
 The American Heart Association and World Health Organization recommend at least 150 minutes of moderate-intensity activity or 75 minutes of vigorous activity, or a combination of both, each week. That means it needs an daily goal of 21.4 minutes of FairlyActiveMinutes or 10.7 minutes of VeryActiveMinutes.
@@ -138,7 +139,8 @@ active_users <- daily_activity %>%
 active_users #30 
 ```
 
-Let's look at how active the users are per hourly in total steps
+
+**TOTAL STEPS:** let's look at how active the users are per hourly in total steps. From 5PM to 7PM the users take the most steps. 
 ```
 ggplot(data=hourly_step, aes(x=Hour, y=StepTotal, fill=Hour))+
   geom_bar(stat="identity")+
@@ -147,15 +149,18 @@ ggplot(data=hourly_step, aes(x=Hour, y=StepTotal, fill=Hour))+
 ![image](https://user-images.githubusercontent.com/62857660/136235391-bb22c15d-93aa-494d-bce2-76a984274fb7.png)
 
 
-How active the users are weekly in total steps.
+How active the users are weekly in total steps. Tuesday and Saturdays the users take the most steps. 
 ```
 ggplot(data=merged_data, aes(x=Weekday, y=TotalSteps, fill=Weekday))+ 
   geom_bar(stat="identity")+
   ylab("Total Steps")
 ```
-![image](https://user-images.githubusercontent.com/62857660/136235216-08885a9f-b6cd-4e77-a4f5-706f543ac480.png)
+![image](https://user-images.githubusercontent.com/62857660/136252217-53d355de-2c25-4185-8e6d-27ba087573ae.png)
 
-The more active that you're, the more steps you take, and the more calories you will burn. This is an obvious fact, but we can still look into the data to find any interesting. Here we see that some users who are sedentary, take minimal steps, but still able to burn over 1500 to 2500 calories compare to users who are more active, take more steps, but still burn similar calories.
+
+
+
+**INTERESTING FINDS:** The more active that you're, the more steps you take, and the more calories you will burn. This is an obvious fact, but we can still look into the data to find any interesting. Here we see that some users who are sedentary, take minimal steps, but still able to burn over 1500 to 2500 calories compare to users who are more active, take more steps, but still burn similar calories.
 
 ```
 ggplot(data=daily_activity, aes(x=TotalSteps, y = Calories, color=SedentaryMinutes))+ 
@@ -164,18 +169,31 @@ ggplot(data=daily_activity, aes(x=TotalSteps, y = Calories, color=SedentaryMinut
   scale_color_gradient(low="steelblue", high="orange")
 
 ```
+![image](https://user-images.githubusercontent.com/62857660/136260311-a379b303-76ac-426c-9c30-ea2695569632.png)
 
-![image](https://user-images.githubusercontent.com/62857660/136112636-89a7dfd3-79e5-410d-95b5-4b95cc0a4210.png)
+Comparing the four active levels to the total steps, we see most data is concentrated on users who take about 5000 to 15000 steps a day. These users spent an average between 8 to 13 hours in sedentary, 5 hours in lightly active, and 1 to 2 hour for fairly and very active. 
+
+![image](https://user-images.githubusercontent.com/62857660/136269396-7019cf93-6e0c-4216-9944-5e58e017f593.png)
+
+According to [this healthline.com article](https://www.healthline.com/nutrition/how-many-calories-per-day#average-calorie-needs), moderately active woman between the ages of 26–50 needs to eat about 2,000 calories per day and moderately active man between the ages of 26–45 needs 2,600 calories per day to maintain his weight. Comparing the four active levels to the calories, we see most data is concentrated on users who burn 2000 to 3000 calories a day. These users also spent an average between 8 to 13 hours in sedentary, 5 hours in lightly active, and 1 to 2 hour for fairly and very active. Additionally, we see that the sedentary line is leveling off toward the end while fairly + very active line is curing back up. This indicate that the users who burn more calories spend less time in sedentary, more time in fairly + active. 
+
+![image](https://user-images.githubusercontent.com/62857660/136263632-ac5c1958-23db-4374-b810-df6f322b047b.png)
+
+
+
+**REGRESSION ANALYSIS**: We can use regression analysis look at the R-squared, slope, p-value and intercept for different combinations of the variables. For R-squared, 0% indicates that the model explains none of the variability of the response data around its mean. Higher % indicates that the model explains more of the variability of the response data around its mean. Postive slope means variables increase/decrease with each other, and negative means one variable go up and the other go down. 
+
+Postive slope with 27.88% R-squared:
+```
+calories_vs_steps.mod <- lm(Calories ~ TotalSteps, data = merged_data)
+summary(calories_vs_steps.mod)
+```
+![calvssteps](https://user-images.githubusercontent.com/62857660/136107751-e1aba885-9475-4430-94cc-e56e39d0c380.PNG)
 
 
 
 
-
-
-
-
-
-Now for the sleep date, according to article: [Fitbit Sleep Study](https://blog.fitbit.com/sleep-study/#:~:text=The%20average%20Fitbit%20user%20is,is%20spent%20restless%20or%20awake.&text=People%20who%20sleep%205%20hours,the%20beginning%20of%20the%20night.), 55 minutes are spent awake in bed before going to sleep. We have 13 users in our dataset spend 55 minutes awake before alseep. 
+**SLEEP**: According to article: [Fitbit Sleep Study](https://blog.fitbit.com/sleep-study/#:~:text=The%20average%20Fitbit%20user%20is,is%20spent%20restless%20or%20awake.&text=People%20who%20sleep%205%20hours,the%20beginning%20of%20the%20night.), 55 minutes are spent awake in bed before going to sleep. We have 13 users in our dataset spend 55 minutes awake before alseep. 
 
 ```
 awake_in_bed <- mutate(sleep_day, AwakeTime = TotalTimeInBed - TotalMinutesAsleep)
@@ -185,23 +203,15 @@ awake_in_bed <- awake_in_bed %>%
   arrange(AwakeTime) 
 ```
 
-Something we should also consider here: does the fitness data include sleep minutes as sedentary minutes? Let's take a look at the hourly plot. 
-
-We can use regression analysis look at the R-squared, slope, p-value and intercept for different combinations of the data. For R-squared, 0% indicates that the model explains none of the variability of the response data around its mean. Higher % indicates that the model explains more of the variability of the response data around its mean. In layman's terms, how related are the data? Postive slope means variables increase/decrease with each other, and negative means one variable go up and the other go down. 
-
-Postive slope with 27.88% R-squared:
-```
-calories_vs_steps.mod <- lm(Calories ~ TotalSteps, data = merged_data)
-summary(calories_vs_steps.mod)
-```
-![calvssteps](https://user-images.githubusercontent.com/62857660/136107751-e1aba885-9475-4430-94cc-e56e39d0c380.PNG)
-
-Negative slope with an very small R-squared. How many minutes an user sleep have an very weak correlation with their activity minutes in sedentary. 
+Next, we want to look at if users who spend more time in sedentary minutes spend more time sleeping as well. We can use regression analysis ```lm()``` to check for R-squared and the slope. We can see that it has a negative slope with an very small R-squared. How many minutes an user asleep have an very weak correlation with their sedentary minutes.  
 ```
 sedentary_vs_sleep.mod <- lm(SedentaryMinutes ~ TotalMinutesAsleep, data = merged_data)
 summary(sedentary_vs_sleep.mod)
 ```
 ![calvssteps2](https://user-images.githubusercontent.com/62857660/136107919-65c86392-4f12-4038-b3d3-09166d8d5381.PNG)
+
+
+
 
 Editing...
 
