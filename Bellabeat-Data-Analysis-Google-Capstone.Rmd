@@ -1,5 +1,5 @@
 ---
-title: "R Notebook - Emily Liang"
+## title: "R Notebook - Emily Liang - Bellabeat Case Study"
 output:
   html_document:
     df_print: paged
