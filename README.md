@@ -18,7 +18,7 @@ _The case study follows the six step data analysis process:_
 Since it was founded in 2013, Bellabeat has grown rapidly and quickly positioned itself as a tech-driven wellness company for women. The company has 5 focus products: bellabeat app, leaf, time, spring and bellabeat membership. Bellabeat is a successful small company, but they have the potential to become a larger player in the global smart device market. Our team have been asked to analyze smart device data to gain insight into how consumers are using their smart devices. The insights we discover will then help guide marketing strategy for the company. 
 
 ## 1. Ask
-💡 **BUSINESS TASK: Analyze Fitbit data to gain insight and help guide marketing strategy for Bellabeat to grow as a global player. **
+💡 **BUSINESS TASK: Analyze Fitbit data to gain insight and help guide marketing strategy for Bellabeat to grow as a global player.**
 
 Primary stakeholders: Urška Sršen and Sando Mur, executive team members.
 
@@ -87,16 +87,16 @@ Clean the data to prepare for analysis in 4. Analyze!
 
 ## 4. Analyze
 
-- [Summary](#summary)
-- [Active Minutes](#active-minutes)
-- [Noticebal Day](#noticeable-day)
-- [Total Steps](#total-steps)
-- [Interesting Finds](#interesting-finds)
-- [Sleep](#sleep)
+-  [Summary](#summary)
+-  [Active Minutes](#active-minutes)
+-  [Noticebal Day](#noticeable-day)
+-  [Total Steps](#total-steps)
+-  [Interesting Finds](#interesting-finds)
+-  [Sleep](#sleep)
 
 
 ### Summary:
-Check min, max, mean, median and any outliers. 
+Check min, max, mean, median and any outliers. Avg weight is 135 pounds with BMI of 24 and burn 2050 calories. Avg steps is 10200, max is almost triple that 36000 steps. Users spend on avg 12 hours a day in sedentary minutes, 4 hours lightly active, only half hour in fairly+very active! Users also gets about 7 hour of sleep. 
 ```
 merged_data %>%
   dplyr::select(Weekday,
@@ -229,7 +229,25 @@ ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinu
 Editing...
 
 ## 6. Act
-Editing...
+Conclusion based on our analysis:
+- Sedentary make up a significant portion, 81% of users daily active minutes. Users spend on avg 12 hours a day in sedentary minutes, 4 hours lightly active, and only half-hour in fairly+very active! 
+- We see the most change on Saturday: users take more steps, burn more calories, and spend less time sedentary. Sunday is the most "lazy" day for users. 
+- 54% of the users who recorded their sleep data spent 55 minutes awake in bed before falling asleep.
+- Users takes the most steps from 5 PM to 7 PM
+Users who are sedentary take minimal steps and burn 1500 to 2500 calories compared to users who are more active, take more steps, but still burn similar calories.
+
+
+
+Marketing recommendations to expand globally:
+
+##### 🔢  Obtain more data for an accurate analysis, encouraging users to use a wifi-connected scale instead of manual weight entries. 
+
+##### 🚲  Educational healthy style campaign encourages users to have short active exercises during the week, longer during the weekends, especially on Sunday where we see the lowest steps and most sedentary minutes.
+
+##### 🎁  Educational healthy style campaign can pair with a point-award incentive system. Users completing the whole week's exercise will receive Bellabeat points on products/memberships.
+
+##### 🏃‍♂️ The product, such as Leaf wellness tracker, can beat or vibrate after a prolonged period of sedentary minutes, signaling the user it's time to get active! Similarly, it can also remind the user it's time to sleep after sensing a prolonged awake time in bed.
+
 
 
 
