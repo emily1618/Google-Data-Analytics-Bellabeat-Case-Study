@@ -1,0 +1,384 @@
+---
+title: "R Notebook - Emily Liang"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+Step 1: Load the packages.
+```{r}
+#install.packages('tidyverse')
+#install.packages('skimr')
+#install.packages('cowplot')
+#install.packages("plotly")
+library(plotly)
+library(tidyverse) #wrangle data
+library(dplyr) #clean data
+library(lubridate)  #wrangle date attributes
+library(skimr) #get summary data
+library(ggplot2) #visualize data
+library(cowplot) #grid the plot
+library(readr) #save csv 
+library(plotly) #pie chart
+```
+
+
+Step 2: Prepare the data and if needed, combine them in one data frame.
+```{r}
+setwd("C:/Users/Emily/Downloads/data")
+
+daily_activity <- read.csv("dailyActivity_merged.csv")
+sleep_day <- read.csv("sleepDay_merged.csv")
+weight <- read.csv("weightLogInfo_merged.csv")
+hourly_step <- read.csv("hourlySteps_merged.csv")
+head(daily_activity)
+head(sleep_day)
+head(weight)
+
+#Check for NA and duplicates
+sum(is.na(daily_activity))
+sum(is.na(sleep_day))
+sum(is.na(weight))
+
+sum(duplicated(daily_activity))
+sum(duplicated(sleep_day))
+sum(duplicated(weight))
+
+#We will leave the NA. The NA belong to "Fat" data of different dates. 
+#Remove duplicates.
+sleep_day <- sleep_day[!duplicated(sleep_day), ]
+sum(duplicated(sleep_day))
+
+#Add a new column for the weekdays
+daily_activity <- daily_activity %>% mutate( Weekday = weekdays(as.Date(ActivityDate, "%m/%d/%Y")))
+
+merged1 <- merge(daily_activity,sleep_day,by = c("Id"), all=TRUE)
+merged_data <- merge(merged1, weight, by = c("Id"), all=TRUE)
+
+#Order from Monday to Sunday for plot later
+merged_data$Weekday <- factor(merged_data$Weekday, levels= c("Monday", 
+    "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+merged_data[order(merged_data$Weekday), ]
+
+#Save CSV for Tableau presentation
+write_csv(merged_data, "merged_data.csv")
+
+#Check for NA and duplicates in merged data. 
+sum(is.na(merged_data))
+sum(duplicated(merged_data))
+n_distinct(merged_data$Id)
+```
+
+Step 3: Examine the dataset and check if all 30 users are unique. 
+```{r}
+#Check to see if all users are unique.We supposed to have 30 users or 30 IDs. So We have 3 extra from daily activity, 6 less from the sleep day table, and 22 less from the weight table. 
+n_distinct(daily_activity$Id)
+n_distinct(sleep_day$Id)
+n_distinct(weight$Id)
+
+#Since weight table only has 8 users enter their information. Let's take a look at how they enter the information. 5 users are manually reporting the weight and 3 uers are reporting it with a connected device - wifi connected scale. 
+weight %>% 
+  filter(IsManualReport == "True") %>% 
+  group_by(Id) %>% 
+  summarise("Manual Weight Report"=n()) %>%
+  distinct()
+
+#When are users most active in recording their data. We noticed users track their data more from Tuesday to Thursday and we have more of those days' data than other days.
+ggplot(data=merged_data, aes(x=Weekday))+
+  geom_bar(fill="steelblue")+
+  labs(title="Data Recording During the Week")
+```
+
+Step 4: Weekly and hourly summary
+```{r}
+#Weekly
+ggplot(data=merged_data, aes(x=Weekday, y=TotalSteps, fill=Weekday))+ 
+  geom_bar(stat="identity", fill="steelblue")+
+  labs(title="More Steps on Saturday", y="Total Steps")
+
+ggplot(data=merged_data, aes(x=Weekday, y=Calories, fill=Weekday))+ 
+  geom_bar(stat="identity", fill="gold")
+
+ggplot(data=merged_data, aes(x=Weekday, y=TotalMinutesAsleep, fill=Weekday))+ 
+  geom_bar(stat="identity", fill="steelblue")+
+  labs(title="Total Minutes Asleep During the Week", y="Total Minutes Asleep")
+
+ggplot(data=merged_data, aes(x=Weekday, y=SedentaryMinutes, fill=Weekday))+ 
+  geom_bar(stat="identity", fill="steelblue")+
+  labs(title="Less Sedentary Minutes on Saturday", y="Sedentary Minutes")
+
+ggplot(data=merged_data, aes(x=Weekday, y=TotalDistance, fill=Weekday))+ 
+  geom_bar(stat="identity")
+
+#Hourly
+head(hourly_step)
+n_distinct(hourly_step$Id) #33 users
+
+hourly_step$ActivityHour=as.POSIXct(hourly_step$ActivityHour,format="%m/%d/%Y %I:%M:%S %p")
+hourly_step$Hour <-  format(hourly_step$ActivityHour,format= "%H")
+head(hourly_step)
+
+ggplot(data=hourly_step, aes(x=Hour, y=StepTotal, fill=Hour))+
+  geom_bar(stat="identity")+
+  labs(title="Hourly Steps")
+
+merged_data_hour <- merge(merged_data, hourly_step, by = c("Id"), all=TRUE)
+write_csv(merged_data_hour, "merged_data_hour.csv")
+
+```
+
+Step 5: Statistics summary mean, median, min, max for all 3 tables + merged data
+```{r}
+daily_activity %>%
+ dplyr::select(TotalSteps,
+         TotalDistance,
+         VeryActiveMinutes,
+         FairlyActiveMinutes,
+         LightlyActiveMinutes,
+         SedentaryMinutes,
+         Calories) %>%
+  summary()
+
+sleep_day %>%  
+  dplyr::select(TotalSleepRecords,
+  TotalMinutesAsleep,
+  TotalTimeInBed) %>%
+  summary()
+
+weight %>% 
+  dplyr::select(WeightPounds, BMI) %>%
+  summary()
+
+#Optional for merged data
+merged_data %>%
+  dplyr::select(Weekday,
+         TotalSteps,
+         TotalDistance,
+         VeryActiveMinutes,
+         FairlyActiveMinutes,
+         LightlyActiveMinutes,
+         SedentaryMinutes,
+         Calories,
+         TotalMinutesAsleep,
+         TotalTimeInBed,
+         WeightPounds,
+         BMI
+         ) %>%
+  summary()
+```
+
+
+
+Step 6: analysis on active minutes, calorie, total steps. The American Heart Association and World Health Organization recommend at least 150 minutes of moderate-intensity activity or 75 minutes of vigorous activity, or a combination of both, each week. That means it needs an daily goal of 21.4 minutes of FairlyActiveMinutes or 10.7 minutes of VeryActiveMinutes
+```{r}
+#Active users
+active_users <- daily_activity %>%
+  filter(FairlyActiveMinutes >= 21.4 | VeryActiveMinutes>=10.7) %>% 
+  group_by(Id) %>% 
+  count(Id) 
+
+total_minutes <- sum(daily_activity$SedentaryMinutes, daily_activity$VeryActiveMinutes, daily_activity$FairlyActiveMinutes, daily_activity$LightlyActiveMinutes)
+sedentary_percentage <- sum(daily_activity$SedentaryMinutes)/total_minutes*100
+lightly_percentage <- sum(daily_activity$LightlyActiveMinutes)/total_minutes*100
+fairly_percentage <- sum(daily_activity$FairlyActiveMinutes)/total_minutes*100
+active_percentage <- sum(daily_activity$VeryActiveMinutes)/total_minutes*100
+
+#Pie charts
+percentage <- data.frame(
+  level=c("Sedentary", "Lightly", "Fairly", "Very Active"),
+  minutes=c(sedentary_percentage,lightly_percentage,fairly_percentage,active_percentage)
+)
+
+
+plot_ly(percentage, labels = ~level, values = ~minutes, type = 'pie',textposition = 'outside',textinfo = 'label+percent') %>%
+  layout(title = 'Activity Level Minutes',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+
+#How active are the users
+active_minute <- daily_activity %>% 
+  gather(key=Intensity, value=active_minutes, ends_with("minutes")) %>% 
+  select(Intensity, active_minutes) 
+
+  
+ggplot(data=active_minute, aes(x=Intensity, y=active_minutes))+
+  geom_boxplot(aes(fill=Intensity))+
+  scale_x_discrete(limits=c("SedentaryMinutes","LightlyActiveMinutes","FairlyActiveMinutes","VeryActiveMinutes"))+
+  ylab("Minutes")
+
+
+# Total steps vs Sedentary Minutes with Calories and Total Distance. The two plots are very similar. 
+# Users who are more active burn more calories. Users who are sedentary take the less steps and burn less calories. 
+par(mfrow = c(2, 2))
+ggplot(data=daily_activity, aes(x=TotalSteps, y=SedentaryMinutes, color=Calories))+ 
+  geom_point()+
+  stat_smooth(method=lm)+
+  scale_color_gradient(low="blue", high="yellow")
+  
+ggplot(data=daily_activity, aes(x=TotalSteps, y=SedentaryMinutes, color=TotalDistance))+ 
+  geom_point()+
+  stat_smooth(method=lm)+
+  scale_color_gradient(low="blue", high="yellow")
+
+# Interesting find here that some user who are sedentary, takes minimal step, but still able to burn over 1500 to 2500 calories
+ggplot(data=daily_activity, aes(x=TotalSteps, y = Calories, color=SedentaryMinutes))+ 
+  geom_point()+ 
+  labs(title="Total Steps vs Calories")+
+  xlab("Total Steps")+
+  stat_smooth(method=lm)+
+  scale_color_gradient(low="orange", high="steelblue")
+
+# Users who take more steps, burn more calories and has lower BMI. We also see some outliers in the top left corner. 
+ggplot(data=merged_data, aes(x=TotalSteps, y = BMI, color=Calories))+ 
+  geom_point()+ 
+  stat_smooth(method=lm)+
+   scale_color_gradient(low="blue", high="yellow")
+
+```
+
+Step 7: Regression analysis and R value, leverage points (lm.influence)
+```{r}
+#With lm() analysis, we want to look at the R-squared. 0% indicates that the model explains none of the variability of the response data around its mean. 100% indicates that the model explains all the variability of the response data around its mean. 
+
+
+step_vs_sedentary.mod <- lm(SedentaryMinutes ~ TotalSteps, data = merged_data)
+summary(step_vs_sedentary.mod)
+
+bmi_vs_steps.mod <- lm(BMI ~ TotalSteps, data = merged_data)
+summary(bmi_vs_steps.mod)
+
+calories_vs_steps.mod <- lm(Calories ~ TotalSteps, data = merged_data)
+summary(calories_vs_steps.mod)
+
+sedentary_vs_sleep.mod <- lm(SedentaryMinutes ~ TotalMinutesAsleep, data = merged_data)
+summary(sedentary_vs_sleep.mod)
+
+veryactive_vs_sleep.mod <- lm(VeryActiveMinutes ~ TotalMinutesAsleep, data = merged_data)
+summary(veryactive_vs_sleep.mod)
+```
+
+Step 8: This high volume of moderate-to-vigorous physical activity is achieved by a very small proportion of the population. Let's take a look at this. 
+```{r}
+active_minutes_vs_calories <- ggplot(data = merged_data) + 
+  geom_point(mapping=aes(x=Calories, y=FairlyActiveMinutes), color = "maroon", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x, mapping=aes(x=Calories, y=FairlyActiveMinutes, color=FairlyActiveMinutes), color = "maroon", se = FALSE) +
+  
+  geom_point(mapping=aes(x=Calories, y=VeryActiveMinutes), color = "forestgreen", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=Calories, y=VeryActiveMinutes, color=VeryActiveMinutes), color = "forestgreen", se = FALSE) +
+  
+  geom_point(mapping=aes(x=Calories, y=LightlyActiveMinutes), color = "orange", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=Calories, y=LightlyActiveMinutes, color=LightlyActiveMinutes), color = "orange", se = FALSE) +
+  
+  geom_point(mapping=aes(x=Calories, y=SedentaryMinutes), color = "steelblue", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=Calories, y=SedentaryMinutes, color=SedentaryeMinutes), color = "steelblue", se = FALSE) +
+  
+  annotate("text", x=4800, y=160, label="Very Active", color="black", size=3)+
+  annotate("text", x=4800, y=0, label="Fairly Active", color="black", size=3)+
+  annotate("text", x=4800, y=500, label="Sedentary", color="black", size=3)+
+  annotate("text", x=4800, y=250, label="Lightly  Active", color="black", size=3)+
+  labs(x = "Calories", y = "Active Minutes", title="Calories vs Active Minutes")
+
+active_minutes_vs_calories
+
+active_minutes_vs_steps <- ggplot(data = merged_data) + 
+  geom_point(mapping=aes(x=TotalSteps, y=FairlyActiveMinutes), color = "maroon", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x, mapping=aes(x=TotalSteps, y=FairlyActiveMinutes, color=FairlyActiveMinutes), color = "maroon", se = FALSE) +
+  
+  geom_point(mapping=aes(x=TotalSteps, y=VeryActiveMinutes), color = "forestgreen", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=TotalSteps, y=VeryActiveMinutes, color=VeryActiveMinutes), color = "forestgreen", se = FALSE) +
+  
+  geom_point(mapping=aes(x=TotalSteps, y=LightlyActiveMinutes), color = "orange", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=TotalSteps, y=LightlyActiveMinutes, color=LightlyActiveMinutes), color = "orange", se = FALSE) +
+  
+   geom_point(mapping=aes(x=TotalSteps, y=SedentaryMinutes), color = "steelblue", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=TotalSteps, y=SedentaryMinutes, color=SedentaryMinutes), color = "steelblue", se = FALSE) +
+  
+  annotate("text", x=35000, y=150, label="Very Active", color="black", size=3)+
+  annotate("text", x=35000, y=50, label="Fairly Active", color="black", size=3)+
+  annotate("text", x=35000, y=1350, label="Sedentary", color="black", size=3)+
+  annotate("text", x=35000, y=380, label="Lightly  Active", color="black", size=3)+
+  labs(x = "Total Steps", y = "Active Minutes", title="Steps vs Active Minutes")
+
+active_minutes_vs_steps
+
+active_minutes_vs_distance <- ggplot(data = merged_data) + 
+  geom_point(mapping=aes(x=TotalDistance, y=FairlyActiveMinutes), color = "steelblue", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x, mapping=aes(x=TotalDistance, y=FairlyActiveMinutes, color=FairlyActiveMinutes), color = "steelblue", se = FALSE) +
+  
+  geom_point(mapping=aes(x=TotalDistance, y=VeryActiveMinutes), color = "gold", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=TotalDistance, y=VeryActiveMinutes, color=VeryActiveMinutes), color = "gold", se = FALSE) +
+  
+  geom_point(mapping=aes(x=TotalDistance, y=LightlyActiveMinutes), color = "coral", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=TotalDistance, y=LightlyActiveMinutes, color=LightlyActiveMinutes), color = "coral", se = FALSE) +
+  
+   geom_point(mapping=aes(x=TotalDistance, y=SedentaryMinutes), color = "forestgreen", alpha = 1/3) +
+  geom_smooth(method = loess,formula =y ~ x,mapping=aes(x=TotalDistance, y=SedentaryMinutes, color=SedentaryMinutes), color = "forestgreen", se = FALSE) +
+  
+  scale_x_continuous(limits = c(0, 30))+
+  
+  annotate("text", x=28, y=150, label="Very Active", color="black", size=3)+
+  annotate("text", x=28, y=50, label="Fairly Active", color="black", size=3)+
+  annotate("text", x=28, y=1250, label="Sedentary", color="black", size=3)+
+  annotate("text", x=28, y=280, label="Lightly  Active", color="black", size=3)+
+  labs(x = "Distance", y = "Active Minutes")
+
+active_minutes_vs_distance
+
+```
+
+Step 9: Analysis on sleep
+```{r}
+#Sleep time in hours instead of minutes
+sleep_day_in_hour <-sleep_day
+sleep_day_in_hour$TotalMinutesAsleep <- sleep_day_in_hour$TotalMinutesAsleep/60
+sleep_day_in_hour$TotalTimeInBed <- sleep_day_in_hour$TotalTimeInBed/60
+head(sleep_day_in_hour)
+
+#Check for any sleep outliers. # of times user sleep more than 10 hours or less than 1  
+sum(sleep_day_in_hour$TotalMinutesAsleep > 9)
+sum(sleep_day_in_hour$TotalTimeInBed > 9)
+sum(sleep_day_in_hour$TotalMinutesAsleep < 2)
+sum(sleep_day_in_hour$TotalTimeInBed < 2)
+
+#According to article: https://blog.fitbit.com/sleep-study/#:~:text=The%20average%20Fitbit%20user%20is,is%20spent%20restless%20or%20awake.&text=People%20who%20sleep%205%20hours,the%20beginning%20of%20the%20night. 55 minutes are spend awake in bed before going to sleep. Let see how many users in our study is according to the FitBit data
+
+awake_in_bed <- mutate(sleep_day, AwakeTime = TotalTimeInBed - TotalMinutesAsleep)
+awake_in_bed <- awake_in_bed %>% 
+  filter(AwakeTime >= 55) %>% 
+  group_by(Id) %>% 
+  arrange(AwakeTime, desc=TRUE) 
+  
+n_distinct(awake_in_bed$Id) #13 users spend more than 55 minutes in bed before falling alseep
+#How many minutes an user sleep may not correlate well with how actively they are, but sedentary time account for about 80% of during the day
+
+# Majority of the users sleep between 5 to 10 hours burns around 1500 to 4500 calories a day.
+ggplot(data=merged_data, aes(x=TotalMinutesAsleep/60, y=Calories, color=TotalSteps))+ 
+  geom_point()+
+  scale_color_gradient(low="blue", high="yellow")
+
+# Majority of the users sleep between 5 to 10 hours spend 7 to 24 hours in sedentary and only 0 to 2 hours in very active mode. 
+ggplot(data=merged_data, aes(x=TotalMinutesAsleep/60 ,y=SedentaryMinutes/60, color=TotalSteps))+ 
+  geom_point()+
+  scale_color_gradient(low="steelblue", high="orange") +
+  ylab("sedentary hours")+
+  xlab("total sleep hours")
+
+ggplot(data=merged_data, aes(x=TotalMinutesAsleep/60 ,y=VeryActiveMinutes/60, color=TotalSteps))+ 
+  geom_point()+
+  scale_color_gradient(low="steelblue", high="orange")+
+  ylab("very active hours")+
+  xlab("total sleep hours")
+
+ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinutesAsleep))+ 
+  geom_point()+ 
+  labs(title="Total Minutes Asleep vs Calories")+
+  xlab("Total Minutes Alseep")+
+  stat_smooth(method=lm)+
+  scale_color_gradient(low="orange", high="steelblue")
+```
+
+
