@@ -1,5 +1,5 @@
 # CASE STUDY: Bellabeat Fitness Data Analysis 
-##### Author: Emily Liang
+##### Author: Emi Ly
 
 ##### Date: October 5, 2021
 
