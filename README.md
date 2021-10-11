@@ -226,10 +226,15 @@ ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinu
 
 
 ## 5. Share 
-### [Bellabeat Data Presentation and Visualization in Tableau](https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysis-GoogleDataAnalyticsCapstone/Story1)
+### [Bellabeat Data Analysis Dashboard] (https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysisDashboard/GiantDashboard)
+
+![dashboard-bella](https://user-images.githubusercontent.com/62857660/136821119-78ddef7b-1e78-4875-bc4b-04febdfb67c2.PNG)
+
+### [Bellabeat Data Presentation in Tableau](https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysis-GoogleDataAnalyticsCapstone/Story1)
 
 ![2bc](https://user-images.githubusercontent.com/62857660/136630178-db8329b4-d1cd-4648-9fbf-42b2ec0bc64b.PNG)![1](https://user-images.githubusercontent.com/62857660/136630182-6de1451a-a5b2-40fb-b3ef-bf1f01ebdaa9.PNG)
 ![2b](https://user-images.githubusercontent.com/62857660/136630195-1b87f1da-fc48-49bc-bd3b-abc6aafc96c0.PNG)
+
 
 
 
