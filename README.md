@@ -43,6 +43,7 @@ The dataset has 18 CSV. The data also follow a ROCCC approach:
 - Most data is recorded from Tuesday to Thursday, which may not be comprehensive enough to form an accurate analysis. 
 
 ## 3. Process
+[Back to Top](#scenario)
 
 Examine the data, check for NA, and remove duplicates for three main tables: daily_activity, sleep_day and weight:
 ```
@@ -117,6 +118,8 @@ merged_data %>%
 ![summary](https://user-images.githubusercontent.com/62857660/136262678-18377ce4-3443-48a4-b108-eba6a273f963.PNG)
 
 ### Active Minutes:
+[Back to Analyze](#analyze)
+
 Percentage of active minutes in the four categories: very active, fairly active, lightly active and sedentary. From the pie chart, we can see that most users spent 81.3% of their daily activity in sedentary minutes and only 1.74% in very active minutes. 
 ```
 percentage <- data.frame(
@@ -144,6 +147,8 @@ active_users <- daily_activity %>%
 ```
 
 ### Noticeable Day:
+[Back to Analyze](#analyze)
+
 The bar graph shows that there is a jump on Saturday: user spent LESS time in sedentary minutes and take MORE steps. Users are out and about on Saturday. 
 
 ![image](https://user-images.githubusercontent.com/62857660/136281021-fea4e732-982c-4404-8650-c3e943076856.png)
@@ -154,6 +159,8 @@ The bar graph shows that there is a jump on Saturday: user spent LESS time in se
 
 
 ### Total Steps:
+[Back to Analyze](#analyze)
+
 Let's look at how active the users are per hourly in total steps. From 5PM to 7PM the users take the most steps. 
 ```
 ggplot(data=hourly_step, aes(x=Hour, y=StepTotal, fill=Hour))+
@@ -175,6 +182,8 @@ ggplot(data=merged_data, aes(x=Weekday, y=TotalSteps, fill=Weekday))+
 
 
 ### Interesting Finds:
+[Back to Analyze](#analyze)
+
 The more active that you're, the more steps you take, and the more calories you will burn. This is an obvious fact, but we can still look into the data to find any interesting. Here we see that some users who are sedentary, take minimal steps, but still able to burn over 1500 to 2500 calories compare to users who are more active, take more steps, but still burn similar calories.
 
 ```
@@ -195,6 +204,8 @@ According to [this healthline.com article](https://www.healthline.com/nutrition/
 ![image](https://user-images.githubusercontent.com/62857660/136263632-ac5c1958-23db-4374-b810-df6f322b047b.png)
 
 ### Sleep:
+[Back to Analyze](#analyze)
+
 According to article: [Fitbit Sleep Study](https://blog.fitbit.com/sleep-study/#:~:text=The%20average%20Fitbit%20user%20is,is%20spent%20restless%20or%20awake.&text=People%20who%20sleep%205%20hours,the%20beginning%20of%20the%20night.), 55 minutes are spent awake in bed before going to sleep. We have 13 users in our dataset spend 55 minutes awake before alseep. 
 
 ```
@@ -226,6 +237,8 @@ ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinu
 
 
 ## 5. Share 
+[Back to Top](#scenario)
+
 ### 🎨 [Bellabeat Data Analysis Dashboard](https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysisDashboard/GiantDashboard)
 
 ![dashboard-bella](https://user-images.githubusercontent.com/62857660/136821119-78ddef7b-1e78-4875-bc4b-04febdfb67c2.PNG)
@@ -237,6 +250,8 @@ ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinu
 
 
 ## 6. Act
+[Back to Top](#scenario)
+
 Conclusion based on our analysis:
 - Sedentary make up a significant portion, 81% of users daily active minutes. Users spend on avg 12 hours a day in sedentary minutes, 4 hours lightly active, and only half-hour in fairly+very active! 
 - We see the most change on Saturday: users take more steps, burn more calories, and spend less time sedentary. Sunday is the most "lazy" day for users. 
