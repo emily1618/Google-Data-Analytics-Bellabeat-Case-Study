@@ -87,6 +87,7 @@ merged_data <- merge(merged_activity_sleep, weight, by = c("Id"), all=TRUE)
 Clean the data to prepare for analysis in 4. Analyze!
 
 ## 4. Analyze
+[Back to Top](#author-emi-ly)
 
 -  [Summary](#summary)
 -  [Active Minutes](#active-minutes)
@@ -237,7 +238,7 @@ ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinu
 
 
 ## 5. Share 
-[Back to Top](#scenario)
+[Back to Top](#author-emi-ly)
 
 ### 🎨 [Bellabeat Data Analysis Dashboard](https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysisDashboard/GiantDashboard)
 
@@ -250,7 +251,7 @@ ggplot(data=merged_data, aes(x=TotalMinutesAsleep, y = Calories, color=TotalMinu
 
 
 ## 6. Act
-[Back to Top](#scenario)
+[Back to Top](#author-emi-ly)
 
 Conclusion based on our analysis:
 - Sedentary make up a significant portion, 81% of users daily active minutes. Users spend on avg 12 hours a day in sedentary minutes, 4 hours lightly active, and only half-hour in fairly+very active! 
