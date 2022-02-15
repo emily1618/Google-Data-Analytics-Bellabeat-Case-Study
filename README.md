@@ -3,6 +3,10 @@
 
 ##### Date: October 5, 2021
 
+##### [Tableau Dashboard](https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysisDashboard/GiantDashboard)
+
+##### [Tableau Story Presentation to Skateholders](https://public.tableau.com/app/profile/emily.liang7497/viz/BellabeatFitnessDataAnalysis-GoogleDataAnalyticsCapstone/Story1)
+
 #
 
 _The case study follows the six step data analysis process:_
